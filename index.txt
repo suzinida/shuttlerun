@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shuttle Run Rep Checker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #3d2833;
+    --surface: #4d3340;
+    --border: #7a5568;
+    --accent: #ffc4d6;      /* sakura pink */
+    --accent2: #ffe0ec;     /* light sakura */
+    --text: #ffffff;
+    --muted: #d4a8bb;
+    --good: #ffc4d6;
+    --warn: #fbbf24;
+    --bad: #ef4444;
+    --left: #d4b3ff;        /* light lavender */
+    --right: #ffc4d6;       /* sakura pink */
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Do Hyeon', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .page { display: none; min-height: 100vh; flex-direction: column; }
+  .page.active { display: flex; }
+
+  .landing-header {
+    padding: 24px 40px;
+    display: flex; align-items: baseline; gap: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .logo { font-size: 28px; letter-spacing: 0.06em; color: var(--accent); }
+  .subtitle { font-size: 14px; color: var(--muted); }
+
+  .landing-hero {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; padding: 48px 24px; text-align: center; gap: 24px;
+  }
+
+  .hero-tag {
+    font-size: 13px; letter-spacing: 0.12em; color: var(--accent);
+    border: 0.5px solid var(--accent); padding: 4px 14px; border-radius: 2px;
+  }
+
+  .hero-title {
+    font-size: clamp(48px, 10vw, 96px);
+    line-height: 0.98; letter-spacing: 0.03em;
+  }
+
+  .hero-title span { color: var(--accent); }
+
+  .hero-tagline {
+    font-size: 18px; color: var(--accent);
+    border: 0.5px solid var(--border); background: var(--surface);
+    padding: 10px 24px; border-radius: 4px; width: 100%; max-width: 680px;
+  }
+
+  .criteria-card {
+    width: 100%; max-width: 680px;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 24px; text-align: left;
+  }
+
+  .criteria-title { font-size: 36px; color: var(--accent); margin-bottom: 20px; text-align: center; }
+
+  .criteria-rules { display: flex; flex-direction: column; gap: 16px; }
+  .criteria-rule { display: flex; align-items: flex-start; gap: 16px; }
+
+  .rule-badge {
+    font-size: 16px; padding: 5px 14px; border-radius: 3px;
+    white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+  }
+
+  .rule-badge.rep   { background: var(--good); color: #001a08; }
+  .rule-badge.norep { background: var(--bad);  color: #fff; }
+  .rule-badge.left  { background: var(--left); color: #001a2e; }
+  .rule-badge.right { background: var(--right); color: #2e001a; }
+
+  .rule-text { font-size: 15px; color: var(--muted); line-height: 1.8; }
+  .rule-text strong { color: var(--text); font-weight: 400; }
+
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; width: 100%; max-width: 680px;
+  }
+
+  .feature-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 4px; padding: 20px 16px; text-align: left;
+  }
+
+  .feature-num { font-size: 36px; color: var(--accent); line-height: 1; margin-bottom: 8px; }
+  .feature-title { font-size: 17px; color: var(--text); margin-bottom: 8px; }
+  .feature-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  .how-section {
+    width: 100%; max-width: 680px;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 4px; padding: 24px; text-align: left;
+  }
+
+  .how-title { font-size: 36px; color: var(--accent); margin-bottom: 20px; }
+
+  .how-step {
+    display: flex; gap: 14px;
+    font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 14px;
+  }
+
+  .how-step:last-child { margin-bottom: 0; }
+  .how-num { font-size: 24px; color: var(--accent); line-height: 1.2; min-width: 18px; }
+
+  .btn-start {
+    width: 100%; max-width: 680px; padding: 20px;
+    background: var(--accent); border: none; border-radius: 4px;
+    color: #062b18;
+    font-family: 'Do Hyeon', sans-serif;
+    font-size: 24px; letter-spacing: 0.06em;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+  }
+
+  .btn-start:hover { background: #6ee7b7; transform: scale(1.01); }
+  .btn-start:active { transform: scale(0.99); }
+
+  /* ═══ Camera Page ═══ */
+  .cam-header {
+    padding: 16px 24px; display: flex;
+    align-items: center; justify-content: space-between;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .back-btn {
+    background: transparent; border: 0.5px solid var(--border);
+    border-radius: 4px; color: var(--muted);
+    font-family: 'Do Hyeon', sans-serif;
+    font-size: 14px; padding: 6px 14px; cursor: pointer; transition: all 0.15s;
+  }
+
+  .back-btn:hover { border-color: var(--text); color: var(--text); }
+
+  .cam-main {
+    width: 100%; max-width: 960px; margin: 0 auto;
+    padding: 20px 16px; display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .camera-section {
+    position: relative; width: 100%; aspect-ratio: 4/3;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 4px; overflow: hidden;
+  }
+
+  #videoEl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+  #canvasEl { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .rep-flash {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 5;
+  }
+
+  .rep-flash.show { opacity: 1; }
+
+  .rep-flash-text {
+    font-family: 'Do Hyeon', sans-serif;
+    font-size: 96px; letter-spacing: 0.04em;
+    text-shadow: 0 0 30px rgba(0,0,0,0.5);
+  }
+
+  .overlay-status {
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    background: rgba(10,24,20,0.82); backdrop-filter: blur(6px);
+    border: 0.5px solid var(--border); border-radius: 2px;
+    padding: 8px 20px; font-size: 15px; color: var(--muted);
+    white-space: nowrap; transition: all 0.2s; z-index: 4;
+  }
+
+  .overlay-status.good { color: var(--good); border-color: var(--good); }
+  .overlay-status.warn { color: var(--warn); border-color: var(--warn); }
+  .overlay-status.bad  { color: var(--bad);  border-color: var(--bad); }
+  .overlay-status.left { color: var(--left); border-color: var(--left); }
+  .overlay-status.right { color: var(--right); border-color: var(--right); }
+
+  .feedback-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 14px 20px 38px;
+    background: linear-gradient(transparent, rgba(10,24,20,0.9));
+    display: flex; align-items: center; justify-content: space-between; z-index: 4;
+  }
+
+  .feedback-text { font-size: 40px; letter-spacing: 0.04em; transition: color 0.2s; }
+
+  .detail-display { font-size: 14px; color: var(--muted); text-align: right; line-height: 1.7; }
+  .detail-display span { color: var(--text); }
+
+  .side-indicator {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(10,24,20,0.82); border: 0.5px solid var(--border);
+    border-radius: 2px; padding: 6px 14px; font-size: 13px; color: var(--muted); z-index: 4;
+  }
+  .side-indicator.left { color: var(--left); border-color: var(--left); }
+  .side-indicator.right { color: var(--right); border-color: var(--right); }
+
+  /* ═ 거리 바 (몸 크기 %) ═ */
+  .pos-bar-wrap {
+    position: absolute; bottom: 6px; left: 20px; right: 20px;
+    height: 6px; z-index: 4; pointer-events: none;
+  }
+  .pos-bar-track {
+    position: relative;
+    width: 100%; height: 100%;
+    background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .pos-bar-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    background: linear-gradient(90deg, var(--muted), var(--accent));
+    transition: width 0.08s, background 0.2s;
+  }
+  .pos-bar-threshold {
+    position: absolute; top: -3px; bottom: -3px;
+    width: 2px; background: var(--warn); left: 85%;
+  }
+  .pos-bar-release {
+    position: absolute; top: -2px; bottom: -2px;
+    width: 1px; background: var(--muted); left: 60%;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stat-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 4px; padding: 14px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+
+  .stat-label { font-size: 16px; color: var(--muted); letter-spacing: 0.04em; }
+
+  .stat-value {
+    font-size: 56px; line-height: 1; color: var(--accent); transition: color 0.3s;
+  }
+
+  .stat-value.flash { animation: flash 0.4s ease; }
+
+  @keyframes flash {
+    0%   { color: var(--good); transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .stat-sub { font-size: 11px; color: var(--muted); }
+
+  .btn {
+    width: 100%; padding: 18px 20px; background: transparent;
+    border: 0.5px solid var(--border); border-radius: 4px;
+    color: var(--muted);
+    font-family: 'Do Hyeon', sans-serif;
+    font-size: 22px; letter-spacing: 0.06em;
+    cursor: pointer; transition: all 0.15s;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+
+  .loading-overlay {
+    position: absolute; inset: 0; background: rgba(10, 24, 20, 0.95);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px; z-index: 10;
+  }
+  .loading-overlay.hidden { display: none; }
+
+  .loading-text { font-size: 15px; color: var(--muted); }
+
+  .spinner {
+    width: 32px; height: 32px;
+    border: 1.5px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ═ 모드 선택 오버레이 ═ */
+  .mode-overlay {
+    position: absolute; inset: 0;
+    background: rgba(10, 24, 20, 0.96);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px; padding: 24px; z-index: 8;
+  }
+  .mode-overlay.hidden { display: none; }
+
+  .mode-title {
+    font-size: 32px; color: var(--accent); text-align: center;
+  }
+  .mode-subtitle {
+    font-size: 14px; color: var(--muted); text-align: center; line-height: 1.6;
+  }
+  .mode-buttons {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; width: 100%; max-width: 480px;
+  }
+  .mode-pick {
+    aspect-ratio: 1;
+    border: 2px solid var(--border); background: var(--surface);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Do Hyeon', sans-serif;
+    font-size: 24px; cursor: pointer; transition: all 0.15s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  }
+  .mode-pick:hover { transform: scale(1.02); }
+  .mode-pick.left { border-color: var(--left); color: var(--left); }
+  .mode-pick.right { border-color: var(--right); color: var(--right); }
+  .mode-pick.left:hover { background: rgba(56, 189, 248, 0.15); }
+  .mode-pick.right:hover { background: rgba(244, 114, 182, 0.15); }
+  .mode-pick .arrow { font-size: 56px; line-height: 1; }
+
+  /* ═ 칼리브레이션 오버레이 ═ */
+  .cal-overlay {
+    position: absolute; inset: 0;
+    background: transparent;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 80px 24px 40px;
+    pointer-events: none;
+    z-index: 7;
+  }
+  .cal-overlay.hidden { display: none; }
+
+  .cal-card {
+    background: rgba(10, 24, 20, 0.88);
+    border: 0.5px solid var(--accent);
+    border-radius: 6px; padding: 20px 24px;
+    text-align: center; max-width: 480px;
+    pointer-events: auto;
+  }
+  .cal-card-title { font-size: 22px; color: var(--accent); margin-bottom: 6px; }
+  .cal-card-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  .cal-size-panel {
+    background: rgba(10, 24, 20, 0.88);
+    border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 14px 20px;
+    text-align: center;
+    pointer-events: auto;
+  }
+  .cal-size-label { font-size: 12px; color: var(--muted); letter-spacing: 0.12em; }
+  .cal-size-value { font-size: 40px; color: var(--accent); line-height: 1.1; }
+  .cal-size-value.bad { color: var(--bad); }
+
+  .cal-actions {
+    display: grid; grid-template-columns: 1fr 2fr; gap: 10px;
+    width: 100%; max-width: 480px;
+    pointer-events: auto;
+  }
+  .cal-btn {
+    padding: 16px 20px; border: none; border-radius: 4px;
+    font-family: 'Do Hyeon', sans-serif;
+    font-size: 18px; cursor: pointer; transition: all 0.15s;
+  }
+  .cal-btn.primary {
+    background: var(--accent); color: #062b18;
+  }
+  .cal-btn.primary:hover { background: #6ee7b7; }
+  .cal-btn.primary:disabled {
+    background: var(--border); color: var(--muted); cursor: not-allowed;
+  }
+  .cal-btn.secondary {
+    background: transparent; border: 0.5px solid var(--border); color: var(--muted);
+  }
+  .cal-btn.secondary:hover { border-color: var(--text); color: var(--text); }
+
+  @media (max-width: 400px) {
+    .stat-value { font-size: 44px; }
+    .stat-label { font-size: 13px; }
+    .rep-flash-text { font-size: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LANDING PAGE ══ -->
+<div class="page active" id="landingPage">
+  <header class="landing-header">
+    <div class="logo">Shuttle Run Rep Checker</div>
+    <div class="subtitle">Yuga Middle School</div>
+  </header>
+
+  <div class="landing-hero">
+    <div class="hero-tag">AI 움직임 분석</div>
+    <div class="hero-title">SHUTTLE<br><span>RUN</span><br>CHECKER</div>
+    <div class="hero-tagline">패드 2대로 양쪽 라인 감지! 가까이 오면 +1</div>
+
+    <div class="criteria-card">
+      <div class="criteria-title">판정 기준</div>
+      <div class="criteria-rules">
+        <div class="criteria-rule">
+          <div class="rule-badge left">LEFT</div>
+          <div class="rule-text">
+            이 패드가 <strong>왼쪽 라인</strong>을 담당할 때 선택해요<br>
+            <span style="color:var(--text)">→ 왼쪽 라인 도착만 카운트</span>
+          </div>
+        </div>
+        <div class="criteria-rule">
+          <div class="rule-badge right">RIGHT</div>
+          <div class="rule-text">
+            이 패드가 <strong>오른쪽 라인</strong>을 담당할 때 선택해요<br>
+            <span style="color:var(--text)">→ 오른쪽 라인 도착만 카운트</span>
+          </div>
+        </div>
+        <div class="criteria-rule">
+          <div class="rule-badge rep">REP</div>
+          <div class="rule-text">
+            기준 몸 크기의 <strong>85% 이상</strong>으로 다가옴<br>
+            <span style="color:var(--text)">→ +1 & 비프음</span>
+          </div>
+        </div>
+        <div class="criteria-rule">
+          <div class="rule-badge norep">NO REP</div>
+          <div class="rule-text">
+            충분히 가까이 오지 않음 · 이전 터치 후 멀어지지 않음<br>
+            <span style="color:var(--text)">→ 카운트되지 않음</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <div class="feature-title">자동 칼리브레이션</div>
+        <div class="feature-desc">학생이 라인에 선 순간의 몸 크기를 기준으로 저장해요</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <div class="feature-title">중복 방지 로직</div>
+        <div class="feature-desc">한번 카운트되면 멀어져야 다시 카운트돼요</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <div class="feature-title">비프음 피드백</div>
+        <div class="feature-desc">터치 순간 삐! 소리로 카운트를 바로 확인해요</div>
+      </div>
+    </div>
+
+    <div class="how-section">
+      <div class="how-title">사용 방법</div>
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div>패드 <span style="color:var(--accent)">2대</span>를 양쪽 라인 뒤편에 각각 세워두세요</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div>각 패드에서 <span style="color:var(--left)">왼쪽</span> / <span style="color:var(--right)">오른쪽</span> 중 자기 라인을 선택해요</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div>학생이 라인에 <span style="color:var(--accent)">서있는 상태</span>에서 '지금 캡처'를 눌러 몸 크기 기준 저장</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div>달리기 시작 → 라인에 돌아올 때마다 <span style="color:var(--accent2)">자동으로 +1</span>, 양 패드 카운트를 더하면 총 횟수</div>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="goToCamera()">카메라 시작하기 →</button>
+  </div>
+</div>
+
+<!-- ══ CAMERA PAGE ══ -->
+<div class="page" id="cameraPage">
+  <div class="cam-header">
+    <div class="logo" style="font-size:22px">Shuttle Run Rep Checker</div>
+    <button class="back-btn" onclick="goToLanding()">← 뒤로</button>
+  </div>
+
+  <div class="cam-main">
+    <div class="camera-section">
+      <video id="videoEl" playsinline muted></video>
+      <canvas id="canvasEl"></canvas>
+
+      <div class="rep-flash" id="repFlash">
+        <div class="rep-flash-text" id="repFlashText">+1</div>
+      </div>
+
+      <!-- 카메라 로딩 -->
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">카메라 시작 중...</div>
+      </div>
+
+      <!-- 모드 선택 -->
+      <div class="mode-overlay hidden" id="modeOverlay">
+        <div class="mode-title">이 패드의 라인을 선택하세요</div>
+        <div class="mode-subtitle">
+          패드 두 대가 각자 자기 라인만 카운트합니다<br>
+          운동 끝나고 두 숫자를 더하면 총 왕복 횟수예요
+        </div>
+        <div class="mode-buttons">
+          <button class="mode-pick left" onclick="pickMode('left')">
+            <span class="arrow">◀</span>
+            왼쪽 라인
+          </button>
+          <button class="mode-pick right" onclick="pickMode('right')">
+            <span class="arrow">▶</span>
+            오른쪽 라인
+          </button>
+        </div>
+      </div>
+
+      <!-- 칼리브레이션 -->
+      <div class="cal-overlay hidden" id="calOverlay">
+        <div class="cal-card">
+          <div class="cal-card-title">📏 기준 몸 크기 캡처</div>
+          <div class="cal-card-desc">
+            학생이 <strong style="color:var(--text)">이 라인에 서 있는 상태</strong>에서<br>
+            아래 <strong style="color:var(--accent)">'지금 캡처'</strong> 버튼을 눌러주세요
+          </div>
+        </div>
+        <div class="cal-size-panel">
+          <div class="cal-size-label">현재 감지된 몸 크기</div>
+          <div class="cal-size-value bad" id="calSizeValue">—</div>
+        </div>
+        <div class="cal-actions">
+          <button class="cal-btn secondary" onclick="backFromCal()">뒤로</button>
+          <button class="cal-btn primary" id="calCaptureBtn" onclick="captureCalibration()" disabled>지금 캡처</button>
+        </div>
+      </div>
+
+      <!-- 상단 상태 / 사이드 배지 (카운팅 중) -->
+      <div class="overlay-status" id="statusLabel">준비 중...</div>
+      <div class="side-indicator" id="sideLabel">—</div>
+
+      <!-- 하단 피드백 (카운팅 중) -->
+      <div class="feedback-bar" id="feedbackBar" style="display:none">
+        <div class="feedback-text" id="feedbackText" style="color:var(--muted)">TRACKING</div>
+        <div class="detail-display">
+          몸 크기 <span id="sizePct">0%</span><br>
+          상태 <span id="phaseLabel">AWAY</span>
+        </div>
+      </div>
+
+      <!-- 거리 바 (카운팅 중) -->
+      <div class="pos-bar-wrap" id="posBarWrap" style="display:none">
+        <div class="pos-bar-track">
+          <div class="pos-bar-fill" id="posBarFill" style="width:0%"></div>
+          <div class="pos-bar-release"></div>
+          <div class="pos-bar-threshold"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">이 라인 터치</div>
+        <div class="stat-value" id="countValue">0</div>
+        <div class="stat-sub" id="countSub">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">기준 크기</div>
+        <div class="stat-value" id="baseValue" style="font-size:40px">—</div>
+        <div class="stat-sub">calibrated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">임계치</div>
+        <div class="stat-value" id="thresholdValue" style="font-size:40px">85%</div>
+        <div class="stat-sub">of calibrated</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="resetCount()">횟수 초기화</button>
+      <button class="btn" onclick="recalibrate()">📏 재측정</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+<script>
+// ═══ DOM ═══
+const videoEl       = document.getElementById('videoEl');
+const canvasEl      = document.getElementById('canvasEl');
+const ctx           = canvasEl.getContext('2d');
+
+const loadingEl     = document.getElementById('loadingOverlay');
+const loadingTextEl = document.getElementById('loadingText');
+const modeOverlay   = document.getElementById('modeOverlay');
+const calOverlay    = document.getElementById('calOverlay');
+const calSizeValue  = document.getElementById('calSizeValue');
+const calCaptureBtn = document.getElementById('calCaptureBtn');
+
+const statusEl      = document.getElementById('statusLabel');
+const sideEl        = document.getElementById('sideLabel');
+const feedbackBar   = document.getElementById('feedbackBar');
+const feedbackEl    = document.getElementById('feedbackText');
+const sizePctEl     = document.getElementById('sizePct');
+const phaseLabelEl  = document.getElementById('phaseLabel');
+const posBarWrap    = document.getElementById('posBarWrap');
+const posBarFill    = document.getElementById('posBarFill');
+
+const countValueEl  = document.getElementById('countValue');
+const countSubEl    = document.getElementById('countSub');
+const baseValueEl   = document.getElementById('baseValue');
+const thresholdEl   = document.getElementById('thresholdValue');
+
+const repFlashEl    = document.getElementById('repFlash');
+const repFlashText  = document.getElementById('repFlashText');
+
+// ═══ 튜닝 ═══
+const THRESHOLD_RATIO = 0.85;   // 기준 크기의 85% 이상 → 터치
+const RELEASE_RATIO   = 0.60;   // 이보다 작아져야 다음 터치 허용
+const MIN_VISIBILITY  = 0.4;
+
+// ═══ 상태 ═══
+const state = {
+  screen: 'loading',  // 'loading' | 'mode' | 'calibrate' | 'counting'
+  mode: null,         // 'left' | 'right'
+  calibratedSize: 0,
+  threshold: 0,
+  release: 0,
+  currentSize: 0,
+  count: 0,
+  phase: 'AWAY',      // 'AWAY' | 'NEAR'
+  cameraStarted: false,
+  flashTimeout: null,
+};
+
+// ═══ 화면 전환 ═══
+function goToCamera() {
+  document.getElementById('landingPage').classList.remove('active');
+  document.getElementById('cameraPage').classList.add('active');
+  if (!state.cameraStarted) startCamera();
+}
+function goToLanding() {
+  document.getElementById('cameraPage').classList.remove('active');
+  document.getElementById('landingPage').classList.add('active');
+}
+
+function setScreen(s) {
+  state.screen = s;
+  loadingEl.classList.toggle('hidden', s !== 'loading');
+  modeOverlay.classList.toggle('hidden', s !== 'mode');
+  calOverlay.classList.toggle('hidden', s !== 'calibrate');
+  feedbackBar.style.display  = (s === 'counting') ? 'flex' : 'none';
+  posBarWrap.style.display   = (s === 'counting') ? 'block' : 'none';
+}
+
+// ═══ 몸 크기 ═══
+// 어깨 중점~엉덩이 중점 세로거리 & 어깨 폭의 최댓값 (정면/측면 모두 로버스트)
+function computeBodySize(lm) {
+  if (!lm) return 0;
+  const ls = lm[11], rs = lm[12], lh = lm[23], rh = lm[24];
+  if (!ls || !rs || !lh || !rh) return 0;
+  const minVis = Math.min(ls.visibility, rs.visibility, lh.visibility, rh.visibility);
+  if (minVis < MIN_VISIBILITY) return 0;
+  const shY = (ls.y + rs.y) / 2;
+  const hpY = (lh.y + rh.y) / 2;
+  const torso = Math.abs(hpY - shY);
+  const shoulderW = Math.hypot(ls.x - rs.x, ls.y - rs.y);
+  return Math.max(torso, shoulderW);
+}
+
+// ═══ 비프음 ═══
+let audioCtx = null;
+function ensureAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e) {}
+}
+function beep(freq, dur, vol) {
+  try {
+    ensureAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.value = vol;
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    const t0 = audioCtx.currentTime;
+    gain.gain.setValueAtTime(vol, t0);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.start(t0); osc.stop(t0 + dur);
+  } catch(e) {}
+}
+const beepRep = () => beep(1050, 0.10, 0.35);
+function beepCapture() {
+  beep(660, 0.09, 0.28);
+  setTimeout(() => beep(990, 0.11, 0.28), 100);
+}
+
+// ═══ 리셋/카운트 ═══
+function resetCount() {
+  state.count = 0;
+  state.phase = 'AWAY';
+  countValueEl.textContent = '0';
+  updateCountSub();
+}
+function updateCountSub() {
+  countSubEl.textContent = state.mode === 'left' ? '왼쪽 라인 도착' : state.mode === 'right' ? '오른쪽 라인 도착' : '—';
+}
+
+// ═══ Flash ═══
+function showFlash(type) {
+  if (state.flashTimeout) clearTimeout(state.flashTimeout);
+  if (type === 'rep') {
+    const color = state.mode === 'left' ? '#38bdf8' : '#f472b6';
+    const bg    = state.mode === 'left' ? 'rgba(56,189,248,0.22)' : 'rgba(244,114,182,0.22)';
+    repFlashEl.style.background = bg;
+    repFlashText.textContent = 'REP +1';
+    repFlashText.style.color = color;
+  } else {
+    repFlashEl.style.background = 'rgba(239,68,68,0.22)';
+    repFlashText.textContent = 'NO REP';
+    repFlashText.style.color = '#ef4444';
+  }
+  repFlashEl.classList.add('show');
+  state.flashTimeout = setTimeout(() => repFlashEl.classList.remove('show'), 600);
+}
+function flashStat(el) {
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
+
+// ═══ 모드 ═══
+function pickMode(mode) {
+  state.mode = mode;
+  ensureAudio();
+  updateCountSub();
+  // 기준 색상으로 스탯 카운트 색 바꾸기
+  countValueEl.style.color = mode === 'left' ? 'var(--left)' : 'var(--right)';
+  setScreen('calibrate');
+}
+
+// ═══ 칼리브레이션 ═══
+function captureCalibration() {
+  if (state.currentSize <= 0.03) return;
+  state.calibratedSize = state.currentSize;
+  state.threshold = state.calibratedSize * THRESHOLD_RATIO;
+  state.release   = state.calibratedSize * RELEASE_RATIO;
+  state.phase = 'AWAY';
+  state.count = 0;
+  baseValueEl.textContent = (state.calibratedSize * 100).toFixed(0);
+  thresholdEl.textContent = Math.round(THRESHOLD_RATIO * 100) + '%';
+  countValueEl.textContent = '0';
+  beepCapture();
+  setScreen('counting');
+}
+function recalibrate() {
+  state.phase = 'AWAY';
+  setScreen('calibrate');
+}
+function backFromCal() {
+  setScreen('mode');
+}
+
+// ═══ MediaPipe Pose ═══
+const pose = new Pose({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
+pose.setOptions({
+  modelComplexity: 1,
+  smoothLandmarks: true,
+  enableSegmentation: false,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5,
+});
+
+pose.onResults((results) => {
+  canvasEl.width  = videoEl.videoWidth  || 640;
+  canvasEl.height = videoEl.videoHeight || 480;
+  ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+  if (results.image) {
+    ctx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
+  }
+
+  const lm = results.poseLandmarks;
+
+  // 뼈대 그리기
+  if (lm) {
+    drawConnectors(ctx, lm, POSE_CONNECTIONS, { color: '#28473a', lineWidth: 1.5 });
+    drawLandmarks(ctx, lm, { color: '#34d399', lineWidth: 1, radius: 3 });
+  }
+
+  // 현재 몸 크기 계산
+  const size = computeBodySize(lm);
+  state.currentSize = size;
+
+  // 화면별 처리
+  if (state.screen === 'calibrate') {
+    if (size > 0.03) {
+      calSizeValue.textContent = (size * 100).toFixed(1);
+      calSizeValue.classList.remove('bad');
+      calCaptureBtn.disabled = false;
+    } else {
+      calSizeValue.textContent = lm ? '…' : '사람 없음';
+      calSizeValue.classList.add('bad');
+      calCaptureBtn.disabled = true;
+    }
+    // 상단 상태도 업데이트
+    const modeText = state.mode === 'left' ? '◀ 왼쪽 라인' : '오른쪽 라인 ▶';
+    statusEl.textContent = '칼리브레이션 중 — ' + modeText;
+    statusEl.className = 'overlay-status ' + (state.mode || '');
+    sideEl.textContent = modeText;
+    sideEl.className = 'side-indicator ' + (state.mode || '');
+  } else if (state.screen === 'counting') {
+    handleCounting(size, lm);
+  }
+
+  // 칼리브레이션 기준 시각화 (counting 중에만)
+  if (state.screen === 'counting' && state.calibratedSize > 0 && lm) {
+    drawCalibrationGuide(lm);
+  }
+});
+
+function handleCounting(size, lm) {
+  const modeText = state.mode === 'left' ? '◀ 왼쪽 라인' : '오른쪽 라인 ▶';
+  sideEl.textContent = modeText;
+  sideEl.className = 'side-indicator ' + (state.mode || '');
+
+  // 퍼센트 표시
+  const pct = state.calibratedSize > 0 ? (size / state.calibratedSize) * 100 : 0;
+  const pctClamped = Math.max(0, Math.min(100, pct));
+  sizePctEl.textContent = pctClamped.toFixed(0) + '%';
+  posBarFill.style.width = pctClamped + '%';
+  phaseLabelEl.textContent = state.phase;
+
+  // 색상 (85% 넘으면 good)
+  if (pct >= 85) posBarFill.style.background = 'linear-gradient(90deg, var(--accent2), var(--good))';
+  else if (pct >= 60) posBarFill.style.background = 'linear-gradient(90deg, var(--muted), var(--warn))';
+  else posBarFill.style.background = 'linear-gradient(90deg, var(--border), var(--muted))';
+
+  if (!lm || size <= 0.02) {
+    statusEl.textContent = '사람을 찾는 중...';
+    statusEl.className = 'overlay-status';
+    feedbackEl.textContent = 'SEARCHING';
+    feedbackEl.style.color = 'var(--muted)';
+    return;
+  }
+
+  // 상태머신
+  if (state.phase === 'AWAY') {
+    if (size >= state.threshold) {
+      // REP!
+      state.count++;
+      state.phase = 'NEAR';
+      countValueEl.textContent = state.count;
+      flashStat(countValueEl);
+      showFlash('rep');
+      beepRep();
+      statusEl.textContent = 'REP! — ' + modeText + ' 터치';
+      statusEl.className = 'overlay-status good';
+      feedbackEl.textContent = 'REP +1';
+      feedbackEl.style.color = 'var(--good)';
+    } else {
+      statusEl.textContent = '접근 대기 — 라인으로 오세요';
+      statusEl.className = 'overlay-status';
+      feedbackEl.textContent = pct >= 60 ? 'APPROACHING' : 'TRACKING';
+      feedbackEl.style.color = pct >= 60 ? 'var(--warn)' : 'var(--muted)';
+    }
+  } else if (state.phase === 'NEAR') {
+    if (size <= state.release) {
+      state.phase = 'AWAY';
+      statusEl.textContent = '리셋 완료 — 다시 돌아오세요';
+      statusEl.className = 'overlay-status';
+      feedbackEl.textContent = 'RESET';
+      feedbackEl.style.color = 'var(--muted)';
+    } else {
+      statusEl.textContent = '터치 완료 — 반대편으로!';
+      statusEl.className = 'overlay-status good';
+      feedbackEl.textContent = 'GO BACK';
+      feedbackEl.style.color = 'var(--accent)';
+    }
+  }
+}
+
+// 칼리브레이션 기준 크기를 화면에 시각적 가이드로 표시 (바운딩 박스)
+function drawCalibrationGuide(lm) {
+  const W = canvasEl.width, H = canvasEl.height;
+  const ls = lm[11], rs = lm[12], lh = lm[23], rh = lm[24];
+  if (!ls || !rs || !lh || !rh) return;
+  const cx = ((ls.x + rs.x + lh.x + rh.x) / 4) * W;
+  const cy = ((ls.y + rs.y + lh.y + rh.y) / 4) * H;
+
+  // 기준 크기 박스 (터치 임계치)
+  const thSize = state.threshold * Math.min(W, H);
+  ctx.strokeStyle = 'rgba(251, 191, 36, 0.7)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.strokeRect(cx - thSize, cy - thSize * 1.2, thSize * 2, thSize * 2.4);
+  ctx.setLineDash([]);
+
+  // 현재 크기 표시
+  ctx.fillStyle = 'rgba(52, 211, 153, 0.9)';
+  ctx.font = '14px Do Hyeon, sans-serif';
+  const pct = state.calibratedSize > 0 ? (state.currentSize / state.calibratedSize * 100).toFixed(0) : '0';
+  ctx.fillText(pct + '% / 85%', cx - 40, cy - thSize * 1.2 - 10);
+}
+
+// ═══ 카메라 시작 ═══
+async function startCamera() {
+  state.cameraStarted = true;
+  loadingTextEl.textContent = '카메라 시작 중...';
+  setScreen('loading');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user' }
+    }).catch(() => navigator.mediaDevices.getUserMedia({ video: true }));
+    videoEl.srcObject = stream;
+    await videoEl.play();
+
+    loadingTextEl.textContent = 'AI 모델 로딩 중...';
+
+    const camera = new Camera(videoEl, {
+      onFrame: async () => {
+        try { await pose.send({ image: videoEl }); } catch(e) {}
+      },
+      width: 640, height: 480
+    });
+    camera.start();
+
+    // 첫 프레임 잠깐 대기 후 모드 선택으로
+    setTimeout(() => setScreen('mode'), 800);
+
+  } catch (e) {
+    console.error(e);
+    loadingEl.innerHTML = '<div style="color:#ef4444;font-size:15px;text-align:center;padding:20px;font-family:Do Hyeon,sans-serif">카메라 권한이 필요해요<br><small style="color:#6b8e7e;font-size:13px">브라우저 설정에서 카메라를 허용해주세요</small></div>';
+    state.cameraStarted = false;
+  }
+}
+
+// 화면 꺼짐 방지
+(async () => {
+  try {
+    if ('wakeLock' in navigator) await navigator.wakeLock.request('screen');
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
