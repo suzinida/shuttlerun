@@ -384,10 +384,42 @@
   }
   .cal-btn.secondary:hover { border-color: var(--text); color: var(--text); }
 
+  @media (max-width: 600px) {
+    .mode-overlay { gap: 10px; padding: 12px; }
+    .mode-title { font-size: 16px; }
+    .mode-subtitle { font-size: 11px; line-height: 1.4; }
+    .mode-buttons { gap: 10px; }
+    .mode-pick {
+      aspect-ratio: auto;
+      padding: 10px 6px;
+      font-size: 14px;
+      border-radius: 6px;
+      gap: 2px;
+    }
+    .mode-pick .arrow { font-size: 28px; }
+
+    .cal-overlay { padding: 44px 10px 10px; gap: 6px; justify-content: space-between; }
+    .cal-card { padding: 8px 12px; }
+    .cal-card-title { font-size: 14px; margin-bottom: 2px; }
+    .cal-card-desc { font-size: 11px; line-height: 1.4; }
+    .cal-size-panel { padding: 5px 10px; }
+    .cal-size-label { font-size: 9px; }
+    .cal-size-value { font-size: 20px; }
+    .cal-actions { gap: 6px; }
+    .cal-btn { padding: 9px 10px; font-size: 13px; }
+
+    .overlay-status { font-size: 11px; padding: 4px 10px; }
+    .side-indicator { font-size: 10px; padding: 3px 8px; right: 8px; top: 8px; }
+    .feedback-bar { padding: 10px 12px 20px; }
+    .feedback-text { font-size: 22px; }
+    .detail-display { font-size: 10px; }
+    .rep-flash-text { font-size: 56px; }
+  }
+
   @media (max-width: 400px) {
     .stat-value { font-size: 44px; }
     .stat-label { font-size: 13px; }
-    .rep-flash-text { font-size: 64px; }
+    .rep-flash-text { font-size: 48px; }
   }
 </style>
 </head>
@@ -403,25 +435,11 @@
   <div class="landing-hero">
     <div class="hero-tag">AI 움직임 분석</div>
     <div class="hero-title">SHUTTLE<br><span>RUN</span><br>CHECKER</div>
-    <div class="hero-tagline">패드 2대로 양쪽 라인 감지! 가까이 오면 +1</div>
+    <div class="hero-tagline">기기 2대로 양쪽 라인 감지! 가까이 오면 +1</div>
 
     <div class="criteria-card">
       <div class="criteria-title">판정 기준</div>
       <div class="criteria-rules">
-        <div class="criteria-rule">
-          <div class="rule-badge left">LEFT</div>
-          <div class="rule-text">
-            이 패드가 <strong>왼쪽 라인</strong>을 담당할 때 선택해요<br>
-            <span style="color:var(--text)">→ 왼쪽 라인 도착만 카운트</span>
-          </div>
-        </div>
-        <div class="criteria-rule">
-          <div class="rule-badge right">RIGHT</div>
-          <div class="rule-text">
-            이 패드가 <strong>오른쪽 라인</strong>을 담당할 때 선택해요<br>
-            <span style="color:var(--text)">→ 오른쪽 라인 도착만 카운트</span>
-          </div>
-        </div>
         <div class="criteria-rule">
           <div class="rule-badge rep">REP</div>
           <div class="rule-text">
@@ -442,12 +460,12 @@
     <div class="feature-grid">
       <div class="feature-card">
         <div class="feature-num">01</div>
-        <div class="feature-title">자동 칼리브레이션</div>
+        <div class="feature-title">자동으로 몸크기 감지</div>
         <div class="feature-desc">학생이 라인에 선 순간의 몸 크기를 기준으로 저장해요</div>
       </div>
       <div class="feature-card">
         <div class="feature-num">02</div>
-        <div class="feature-title">중복 방지 로직</div>
+        <div class="feature-title">중복 방지</div>
         <div class="feature-desc">한번 카운트되면 멀어져야 다시 카운트돼요</div>
       </div>
       <div class="feature-card">
@@ -461,11 +479,11 @@
       <div class="how-title">사용 방법</div>
       <div class="how-step">
         <div class="how-num">1</div>
-        <div>패드 <span style="color:var(--accent)">2대</span>를 양쪽 라인 뒤편에 각각 세워두세요</div>
+        <div>기기 <span style="color:var(--accent)">2대</span>를 양쪽 라인 뒤편에 각각 세워두세요</div>
       </div>
       <div class="how-step">
         <div class="how-num">2</div>
-        <div>각 패드에서 <span style="color:var(--left)">왼쪽</span> / <span style="color:var(--right)">오른쪽</span> 중 자기 라인을 선택해요</div>
+        <div>각 기기에서 <span style="color:var(--left)">왼쪽</span> / <span style="color:var(--right)">오른쪽</span> 중 자기 라인을 선택해요</div>
       </div>
       <div class="how-step">
         <div class="how-num">3</div>
@@ -473,7 +491,7 @@
       </div>
       <div class="how-step">
         <div class="how-num">4</div>
-        <div>달리기 시작 → 라인에 돌아올 때마다 <span style="color:var(--accent2)">자동으로 +1</span>, 양 패드 카운트를 더하면 총 횟수</div>
+        <div>달리기 시작 → 라인에 돌아올 때마다 <span style="color:var(--accent2)">자동으로 +1</span>, 양 기기 카운트를 더하면 총 횟수</div>
       </div>
     </div>
 
@@ -505,9 +523,9 @@
 
       <!-- 모드 선택 -->
       <div class="mode-overlay hidden" id="modeOverlay">
-        <div class="mode-title">이 패드의 라인을 선택하세요</div>
+        <div class="mode-title">이 기기의 라인을 선택하세요</div>
         <div class="mode-subtitle">
-          패드 두 대가 각자 자기 라인만 카운트합니다<br>
+          기기 두 대가 각자 자기 라인만 카운트합니다<br>
           운동 끝나고 두 숫자를 더하면 총 왕복 횟수예요
         </div>
         <div class="mode-buttons">
@@ -527,7 +545,7 @@
         <div class="cal-card">
           <div class="cal-card-title">📏 기준 몸 크기 캡처</div>
           <div class="cal-card-desc">
-            학생이 <strong style="color:var(--text)">이 라인에 서 있는 상태</strong>에서<br>
+            <strong style="color:var(--text)">출발선에 서있는 상태</strong>에서 카메라를 마주보고<br>
             아래 <strong style="color:var(--accent)">'지금 캡처'</strong> 버튼을 눌러주세요
           </div>
         </div>
@@ -566,9 +584,8 @@
 
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-label">이 라인 터치</div>
+        <div class="stat-label" id="countLabel">라인 터치</div>
         <div class="stat-value" id="countValue">0</div>
-        <div class="stat-sub" id="countSub">—</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">기준 크기</div>
@@ -616,7 +633,7 @@ const posBarWrap    = document.getElementById('posBarWrap');
 const posBarFill    = document.getElementById('posBarFill');
 
 const countValueEl  = document.getElementById('countValue');
-const countSubEl    = document.getElementById('countSub');
+const countLabelEl  = document.getElementById('countLabel');
 const baseValueEl   = document.getElementById('baseValue');
 const thresholdEl   = document.getElementById('thresholdValue');
 
@@ -712,10 +729,9 @@ function resetCount() {
   state.count = 0;
   state.phase = 'AWAY';
   countValueEl.textContent = '0';
-  updateCountSub();
 }
-function updateCountSub() {
-  countSubEl.textContent = state.mode === 'left' ? '왼쪽 라인 도착' : state.mode === 'right' ? '오른쪽 라인 도착' : '—';
+function updateCountLabel() {
+  countLabelEl.textContent = state.mode === 'left' ? '왼쪽 라인 터치' : state.mode === 'right' ? '오른쪽 라인 터치' : '라인 터치';
 }
 
 // ═══ Flash ═══
@@ -743,7 +759,7 @@ function flashStat(el) {
 function pickMode(mode) {
   state.mode = mode;
   ensureAudio();
-  updateCountSub();
+  updateCountLabel();
   // 기준 색상으로 스탯 카운트 색 바꾸기
   countValueEl.style.color = mode === 'left' ? 'var(--left)' : 'var(--right)';
   setScreen('calibrate');
@@ -814,7 +830,7 @@ pose.onResults((results) => {
     }
     // 상단 상태도 업데이트
     const modeText = state.mode === 'left' ? '◀ 왼쪽 라인' : '오른쪽 라인 ▶';
-    statusEl.textContent = '칼리브레이션 중 — ' + modeText;
+    statusEl.textContent = '몸크기 측정중 — ' + modeText;
     statusEl.className = 'overlay-status ' + (state.mode || '');
     sideEl.textContent = modeText;
     sideEl.className = 'side-indicator ' + (state.mode || '');
