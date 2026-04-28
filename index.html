@@ -6,590 +6,185 @@
 <title>Shuttle Run Rep Checker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #3d2833;
-    --surface: #4d3340;
-    --border: #7a5568;
-    --accent: #ffc4d6;
-    --accent2: #ffe0ec;
-    --text: #ffffff;
-    --muted: #d4a8bb;
-    --good: #ffc4d6;
-    --warn: #fbbf24;
-    --bad: #ef4444;
-    --near: #ffc4d6;
-    --far: #d4b3ff;
+    --bg: #3d2833; --surface: #4d3340; --border: #7a5568;
+    --accent: #ffc4d6; --accent2: #ffe0ec; --text: #ffffff;
+    --muted: #d4a8bb; --good: #ffc4d6; --warn: #fbbf24; --bad: #ef4444;
+    --near: #ffc4d6; --far: #d4b3ff;
   }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Do Hyeon', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: 'Do Hyeon', sans-serif; min-height: 100vh; overflow-x: hidden; }
   .page { display: none; min-height: 100vh; flex-direction: column; }
   .page.active { display: flex; }
-
-  .landing-header {
-    padding: 24px 40px;
-    display: flex; align-items: baseline; gap: 16px;
-    border-bottom: 0.5px solid var(--border);
-  }
-
+  .landing-header { padding: 24px 40px; display: flex; align-items: baseline; gap: 16px; border-bottom: 0.5px solid var(--border); }
   .logo { font-size: 28px; letter-spacing: 0.06em; color: var(--accent); }
   .subtitle { font-size: 14px; color: var(--muted); }
-
-  .landing-hero {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; padding: 48px 24px; text-align: center; gap: 24px;
-  }
-
-  .hero-tag {
-    font-size: 13px; letter-spacing: 0.12em; color: var(--accent);
-    border: 0.5px solid var(--accent); padding: 4px 14px; border-radius: 2px;
-  }
-
-  .hero-title {
-    font-size: clamp(48px, 10vw, 96px);
-    line-height: 0.98; letter-spacing: 0.03em;
-  }
-
+  .landing-hero { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 48px 24px; text-align: center; gap: 24px; }
+  .hero-tag { font-size: 13px; letter-spacing: 0.12em; color: var(--accent); border: 0.5px solid var(--accent); padding: 4px 14px; border-radius: 2px; }
+  .hero-title { font-size: clamp(48px, 10vw, 96px); line-height: 0.98; letter-spacing: 0.03em; }
   .hero-title span { color: var(--accent); }
-
-  .hero-tagline {
-    font-size: 18px; color: var(--accent);
-    border: 0.5px solid var(--border); background: var(--surface);
-    padding: 10px 24px; border-radius: 4px; width: 100%; max-width: 680px;
-  }
-
-  .criteria-card {
-    width: 100%; max-width: 680px;
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 8px; padding: 24px; text-align: left;
-  }
-
+  .hero-tagline { font-size: 18px; color: var(--accent); border: 0.5px solid var(--border); background: var(--surface); padding: 10px 24px; border-radius: 4px; width: 100%; max-width: 680px; }
+  .criteria-card { width: 100%; max-width: 680px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 8px; padding: 24px; text-align: left; }
   .criteria-title { font-size: 36px; color: var(--accent); margin-bottom: 20px; text-align: center; }
-
   .criteria-rules { display: flex; flex-direction: column; gap: 16px; }
   .criteria-rule { display: flex; align-items: flex-start; gap: 16px; }
-
-  .rule-badge {
-    font-size: 16px; padding: 5px 14px; border-radius: 3px;
-    white-space: nowrap; flex-shrink: 0; margin-top: 2px;
-  }
-
-  .rule-badge.rep   { background: var(--good); color: #2e001a; }
-  .rule-badge.norep { background: var(--bad);  color: #fff; }
-  .rule-badge.near  { background: var(--near); color: #2e001a; }
-  .rule-badge.far   { background: var(--far);  color: #1a002e; }
-
+  .rule-badge { font-size: 16px; padding: 5px 14px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .rule-badge.rep { background: var(--good); color: #2e001a; }
+  .rule-badge.near { background: var(--near); color: #2e001a; }
+  .rule-badge.far { background: var(--far); color: #1a002e; }
   .rule-text { font-size: 15px; color: var(--muted); line-height: 1.8; }
   .rule-text strong { color: var(--text); font-weight: 400; }
-
-  .feature-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 12px; width: 100%; max-width: 680px;
-  }
-
-  .feature-card {
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 4px; padding: 20px 16px; text-align: left;
-  }
-
+  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; max-width: 680px; }
+  .feature-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 4px; padding: 20px 16px; text-align: left; }
   .feature-num { font-size: 36px; color: var(--accent); line-height: 1; margin-bottom: 8px; }
   .feature-title { font-size: 17px; color: var(--text); margin-bottom: 8px; }
   .feature-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
-
-  .how-section {
-    width: 100%; max-width: 680px;
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 4px; padding: 24px; text-align: left;
-  }
-
+  .how-section { width: 100%; max-width: 680px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 4px; padding: 24px; text-align: left; }
   .how-title { font-size: 36px; color: var(--accent); margin-bottom: 20px; }
-
-  .how-step {
-    display: flex; gap: 14px;
-    font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 14px;
-  }
-
+  .how-step { display: flex; gap: 14px; font-size: 15px; color: var(--muted); line-height: 1.8; margin-bottom: 14px; }
   .how-step:last-child { margin-bottom: 0; }
   .how-num { font-size: 24px; color: var(--accent); line-height: 1.2; min-width: 18px; }
-
-  .btn-start {
-    width: 100%; max-width: 680px; padding: 20px;
-    background: var(--accent); border: none; border-radius: 4px;
-    color: #2e001a;
-    font-family: 'Do Hyeon', sans-serif;
-    font-size: 24px; letter-spacing: 0.06em;
-    cursor: pointer; transition: background 0.15s, transform 0.1s;
-  }
-
+  .btn-start { width: 100%; max-width: 680px; padding: 20px; background: var(--accent); border: none; border-radius: 4px; color: #2e001a; font-family: 'Do Hyeon', sans-serif; font-size: 24px; letter-spacing: 0.06em; cursor: pointer; transition: background 0.15s, transform 0.1s; }
   .btn-start:hover { background: var(--accent2); transform: scale(1.01); }
-  .btn-start:active { transform: scale(0.99); }
-
-  /* Camera Page */
-  .cam-header {
-    padding: 16px 24px; display: flex;
-    align-items: center; justify-content: space-between;
-    border-bottom: 0.5px solid var(--border);
-  }
-
-  .back-btn {
-    background: transparent; border: 0.5px solid var(--border);
-    border-radius: 4px; color: var(--muted);
-    font-family: 'Do Hyeon', sans-serif;
-    font-size: 14px; padding: 6px 14px; cursor: pointer; transition: all 0.15s;
-  }
-
-  .back-btn:hover { border-color: var(--text); color: var(--text); }
-
-  .cam-main {
-    width: 100%; max-width: 960px; margin: 0 auto;
-    padding: 20px 16px; display: flex; flex-direction: column; gap: 16px;
-  }
-
-  .camera-section {
-    position: relative; width: 100%; aspect-ratio: 4/3;
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 4px; overflow: hidden;
-  }
-
+  .cam-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
+  .back-btn { background: transparent; border: 0.5px solid var(--border); border-radius: 4px; color: var(--muted); font-family: 'Do Hyeon', sans-serif; font-size: 14px; padding: 6px 14px; cursor: pointer; }
+  .cam-main { width: 100%; max-width: 960px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .camera-section { position: relative; width: 100%; aspect-ratio: 4/3; background: var(--surface); border: 0.5px solid var(--border); border-radius: 4px; overflow: hidden; }
   #videoEl { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
   #canvasEl { position: absolute; inset: 0; width: 100%; height: 100%; }
-
-  .rep-flash {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 5;
-  }
-
+  .rep-flash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.1s; z-index: 5; }
   .rep-flash.show { opacity: 1; }
-
-  .rep-flash-text {
-    font-family: 'Do Hyeon', sans-serif;
-    font-size: 96px; letter-spacing: 0.04em;
-    text-shadow: 0 0 30px rgba(0,0,0,0.5);
-  }
-
-  .overlay-status {
-    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
-    background: rgba(61,40,51,0.88); backdrop-filter: blur(6px);
-    border: 0.5px solid var(--border); border-radius: 2px;
-    padding: 8px 20px; font-size: 15px; color: var(--muted);
-    white-space: nowrap; transition: all 0.2s; z-index: 4;
-  }
-
-  .overlay-status.good { color: var(--good); border-color: var(--good); }
-  .overlay-status.warn { color: var(--warn); border-color: var(--warn); }
-  .overlay-status.bad  { color: var(--bad);  border-color: var(--bad); }
+  .rep-flash-text { font-family: 'Do Hyeon', sans-serif; font-size: 96px; letter-spacing: 0.04em; text-shadow: 0 0 30px rgba(0,0,0,0.5); }
+  .overlay-status { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); background: rgba(61,40,51,0.88); backdrop-filter: blur(6px); border: 0.5px solid var(--border); border-radius: 2px; padding: 8px 20px; font-size: 15px; color: var(--muted); white-space: nowrap; z-index: 4; }
   .overlay-status.near { color: var(--near); border-color: var(--near); }
-  .overlay-status.far  { color: var(--far);  border-color: var(--far); }
-
-  .feedback-bar {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 14px 20px 38px;
-    background: linear-gradient(transparent, rgba(61,40,51,0.9));
-    display: flex; align-items: center; justify-content: space-between; z-index: 4;
-  }
-
-  .feedback-text { font-size: 40px; letter-spacing: 0.04em; transition: color 0.2s; }
-
+  .overlay-status.far { color: var(--far); border-color: var(--far); }
+  .overlay-status.warn { color: var(--warn); border-color: var(--warn); }
+  .feedback-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 20px 38px; background: linear-gradient(transparent, rgba(61,40,51,0.9)); display: flex; align-items: center; justify-content: space-between; z-index: 4; }
+  .feedback-text { font-size: 40px; letter-spacing: 0.04em; }
   .detail-display { font-size: 14px; color: var(--muted); text-align: right; line-height: 1.7; }
   .detail-display span { color: var(--text); }
-
-  .side-indicator {
-    position: absolute; top: 16px; right: 16px;
-    background: rgba(61,40,51,0.88); border: 0.5px solid var(--border);
-    border-radius: 2px; padding: 6px 14px; font-size: 13px; color: var(--muted); z-index: 4;
-  }
+  .side-indicator { position: absolute; top: 16px; right: 16px; background: rgba(61,40,51,0.88); border: 0.5px solid var(--border); border-radius: 2px; padding: 6px 14px; font-size: 13px; color: var(--muted); z-index: 4; }
   .side-indicator.near { color: var(--near); border-color: var(--near); }
   .side-indicator.far { color: var(--far); border-color: var(--far); }
-
-  /* Distance bar */
-  .pos-bar-wrap {
-    position: absolute; bottom: 6px; left: 20px; right: 20px;
-    height: 10px; z-index: 4; pointer-events: none;
-  }
-  .pos-bar-track {
-    position: relative;
-    width: 100%; height: 100%;
-    background: var(--border); border-radius: 5px; overflow: visible;
-  }
-  .pos-bar-fill {
-    position: absolute; top: 0; left: 0; height: 100%;
-    background: linear-gradient(90deg, var(--far), var(--near));
-    border-radius: 5px;
-    transition: width 0.08s;
-  }
-  .pos-bar-zone-far {
-    position: absolute; top: 0; left: 0;
-    width: 30%; height: 100%;
-    background: rgba(212, 179, 255, 0.15);
-    border-radius: 5px 0 0 5px;
-  }
-  .pos-bar-zone-near {
-    position: absolute; top: 0; right: 0;
-    width: 25%; height: 100%;
-    background: rgba(255, 196, 214, 0.2);
-    border-radius: 0 5px 5px 0;
-  }
-  .pos-bar-dot {
-    position: absolute; top: -4px;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: var(--accent); transform: translateX(-50%);
-    transition: left 0.08s, background 0.2s;
-    box-shadow: 0 0 12px rgba(255, 196, 214, 0.8);
-    border: 2px solid var(--text);
-  }
-
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .stat-card {
-    background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: 4px; padding: 14px 12px;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-
-  .stat-label { font-size: 16px; color: var(--muted); letter-spacing: 0.04em; }
-
-  .stat-value {
-    font-size: 56px; line-height: 1; color: var(--accent); transition: color 0.3s;
-  }
-
+  .pos-bar-wrap { position: absolute; bottom: 6px; left: 20px; right: 20px; height: 10px; z-index: 4; pointer-events: none; }
+  .pos-bar-track { position: relative; width: 100%; height: 100%; background: var(--border); border-radius: 5px; overflow: visible; }
+  .pos-bar-zone-near { position: absolute; top: 0; right: 0; width: 25%; height: 100%; background: rgba(255,196,214,0.2); border-radius: 0 5px 5px 0; }
+  .pos-bar-dot { position: absolute; top: -4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); transform: translateX(-50%); transition: left 0.08s, background 0.2s; box-shadow: 0 0 12px rgba(255,196,214,0.8); border: 2px solid var(--text); }
+  .stats-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 4px; padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .stat-label { font-size: 16px; color: var(--muted); }
+  .stat-value { font-size: 56px; line-height: 1; color: var(--accent); }
   .stat-value.flash { animation: flash 0.4s ease; }
-
-  @keyframes flash {
-    0%   { color: var(--good); transform: scale(1.15); }
-    100% { transform: scale(1); }
-  }
-
+  @keyframes flash { 0% { color: var(--good); transform: scale(1.15); } 100% { transform: scale(1); } }
   .stat-sub { font-size: 11px; color: var(--muted); }
-
-  .btn {
-    width: 100%; padding: 18px 20px; background: transparent;
-    border: 0.5px solid var(--border); border-radius: 4px;
-    color: var(--muted);
-    font-family: 'Do Hyeon', sans-serif;
-    font-size: 22px; letter-spacing: 0.06em;
-    cursor: pointer; transition: all 0.15s;
-  }
-
+  .btn { width: 100%; padding: 18px 20px; background: transparent; border: 0.5px solid var(--border); border-radius: 4px; color: var(--muted); font-family: 'Do Hyeon', sans-serif; font-size: 22px; cursor: pointer; }
   .btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn-row {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  }
-
-  .loading-overlay {
-    position: absolute; inset: 0; background: rgba(61,40,51,0.95);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 16px; z-index: 10;
-  }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .loading-overlay { position: absolute; inset: 0; background: rgba(61,40,51,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 10; }
   .loading-overlay.hidden { display: none; }
-
   .loading-text { font-size: 15px; color: var(--muted); }
-
-  .spinner {
-    width: 32px; height: 32px;
-    border: 1.5px solid var(--border); border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.8s linear infinite;
-  }
-
+  .spinner { width: 32px; height: 32px; border: 1.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Calibration overlay */
-  .cal-overlay {
-    position: absolute; inset: 0;
-    background: transparent;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: space-between;
-    padding: 80px 24px 40px;
-    pointer-events: none;
-    z-index: 7;
-  }
+  .cal-overlay { position: absolute; inset: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 80px 24px 40px; pointer-events: none; z-index: 7; }
   .cal-overlay.hidden { display: none; }
-
-  .cal-card {
-    background: rgba(61,40,51,0.92);
-    border: 2px solid var(--accent);
-    border-radius: 8px; padding: 20px 24px;
-    text-align: center; max-width: 520px;
-    pointer-events: auto;
-  }
-  .cal-step-badge {
-    display: inline-block;
-    padding: 4px 14px;
-    background: var(--accent); color: #2e001a;
-    border-radius: 20px;
-    font-size: 14px;
-    margin-bottom: 10px;
-    letter-spacing: 0.08em;
-  }
-  .cal-step-badge.step2 {
-    background: var(--far); color: #1a002e;
-  }
+  .cal-card { background: rgba(61,40,51,0.92); border: 2px solid var(--accent); border-radius: 8px; padding: 20px 24px; text-align: center; max-width: 520px; pointer-events: auto; }
+  .cal-step-badge { display: inline-block; padding: 4px 14px; background: var(--accent); color: #2e001a; border-radius: 20px; font-size: 14px; margin-bottom: 10px; }
   .cal-card-title { font-size: 22px; color: var(--accent); margin-bottom: 6px; }
-  .cal-card-title.step2 { color: var(--far); }
   .cal-card-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
   .cal-card-desc strong { color: var(--text); }
-
-  .cal-size-panel {
-    background: rgba(61,40,51,0.92);
-    border: 0.5px solid var(--border);
-    border-radius: 6px; padding: 14px 20px;
-    text-align: center;
-    pointer-events: auto;
-    display: flex; gap: 30px; align-items: center;
-  }
+  .cal-size-panel { background: rgba(61,40,51,0.92); border: 0.5px solid var(--border); border-radius: 6px; padding: 14px 20px; text-align: center; pointer-events: auto; display: flex; gap: 30px; align-items: center; }
   .cal-size-group { display: flex; flex-direction: column; gap: 2px; }
-  .cal-size-label { font-size: 12px; color: var(--muted); letter-spacing: 0.12em; }
+  .cal-size-label { font-size: 12px; color: var(--muted); }
   .cal-size-value { font-size: 32px; color: var(--accent); line-height: 1.1; font-weight: bold; }
   .cal-size-value.bad { color: var(--bad); }
-  .cal-size-value.done { color: var(--good); }
-  .cal-size-value.far { color: var(--far); }
-
-  .cal-actions {
-    display: grid; grid-template-columns: 1fr 2fr; gap: 10px;
-    width: 100%; max-width: 520px;
-    pointer-events: auto;
-  }
-  .cal-btn {
-    padding: 16px 20px; border: none; border-radius: 4px;
-    font-family: 'Do Hyeon', sans-serif;
-    font-size: 18px; cursor: pointer; transition: all 0.15s;
-  }
-  .cal-btn.primary {
-    background: var(--accent); color: #2e001a;
-  }
-  .cal-btn.primary:hover { background: var(--accent2); }
-  .cal-btn.primary:disabled {
-    background: var(--border); color: var(--muted); cursor: not-allowed;
-  }
-  .cal-btn.primary.step2 {
-    background: var(--far);
-    color: #1a002e;
-  }
-  .cal-btn.secondary {
-    background: transparent; border: 0.5px solid var(--border); color: var(--muted);
-  }
-  .cal-btn.secondary:hover { border-color: var(--text); color: var(--text); }
-
-  @media (max-width: 600px) {
-    .cal-overlay { padding: 44px 10px 10px; gap: 6px; }
-    .cal-card { padding: 10px 14px; }
-    .cal-card-title { font-size: 16px; margin-bottom: 2px; }
-    .cal-card-desc { font-size: 11px; line-height: 1.4; }
-    .cal-step-badge { font-size: 11px; padding: 2px 10px; margin-bottom: 4px; }
-    .cal-size-panel { padding: 6px 12px; gap: 16px; }
-    .cal-size-label { font-size: 9px; }
-    .cal-size-value { font-size: 22px; }
-    .cal-actions { gap: 6px; }
-    .cal-btn { padding: 10px 12px; font-size: 14px; }
-
-    .overlay-status { font-size: 11px; padding: 4px 10px; }
-    .side-indicator { font-size: 10px; padding: 3px 8px; right: 8px; top: 8px; }
-    .feedback-bar { padding: 10px 12px 24px; }
-    .feedback-text { font-size: 22px; }
-    .detail-display { font-size: 10px; }
-    .rep-flash-text { font-size: 56px; }
-  }
-
-  @media (max-width: 400px) {
-    .stat-value { font-size: 44px; }
-    .stat-label { font-size: 13px; }
-    .rep-flash-text { font-size: 48px; }
-  }
+  .cal-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; max-width: 520px; pointer-events: auto; }
+  .cal-btn { padding: 16px 20px; border: none; border-radius: 4px; font-family: 'Do Hyeon', sans-serif; font-size: 18px; cursor: pointer; }
+  .cal-btn.primary { background: var(--accent); color: #2e001a; }
+  .cal-btn.primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .cal-btn.secondary { background: transparent; border: 0.5px solid var(--border); color: var(--muted); }
+  @media (max-width: 600px) { .cal-overlay { padding: 44px 10px 10px; } .cal-card { padding: 10px 14px; } .cal-card-title { font-size: 16px; } .cal-card-desc { font-size: 11px; } .cal-step-badge { font-size: 11px; padding: 2px 10px; } .cal-size-panel { padding: 6px 12px; gap: 16px; } .cal-size-value { font-size: 22px; } .cal-btn { padding: 10px 12px; font-size: 14px; } .overlay-status { font-size: 11px; padding: 4px 10px; } .side-indicator { font-size: 10px; padding: 3px 8px; } .feedback-bar { padding: 10px 12px 24px; } .feedback-text { font-size: 22px; } .detail-display { font-size: 10px; } .rep-flash-text { font-size: 56px; } }
+  @media (max-width: 400px) { .stat-value { font-size: 44px; } .stat-label { font-size: 13px; } }
 </style>
 </head>
 <body>
-
-<!-- ══ LANDING PAGE ══ -->
 <div class="page active" id="landingPage">
   <header class="landing-header">
     <div class="logo">Shuttle Run Rep Checker</div>
     <div class="subtitle">Yuga Middle School</div>
   </header>
-
   <div class="landing-hero">
     <div class="hero-tag">AI 움직임 분석 · 1대로 왕복 카운트!</div>
     <div class="hero-title">SHUTTLE<br><span>RUN</span><br>CHECKER</div>
-    <div class="hero-tagline">카메라 1대로 10m 왕복 자동 카운트!</div>
-
+    <div class="hero-tagline">카메라 1대로 왕복 자동 카운트!</div>
     <div class="criteria-card">
       <div class="criteria-title">판정 기준</div>
       <div class="criteria-rules">
         <div class="criteria-rule">
           <div class="rule-badge near">NEAR</div>
-          <div class="rule-text">
-            카메라 <strong>가까이</strong> 있는 상태 (출발선/도착선)<br>
-            <span style="color:var(--text)">→ 기준 크기의 85% 이상일 때</span>
-          </div>
+          <div class="rule-text"><strong>출발선</strong>에서 카메라 가까이 있는 상태<br><span style="color:var(--text)">→ 기준 크기의 85% 이상일 때</span></div>
         </div>
         <div class="criteria-rule">
-          <div class="rule-badge far">FAR</div>
-          <div class="rule-text">
-            카메라에서 <strong>10m 멀리</strong> 있는 상태<br>
-            <span style="color:var(--text)">→ FAR 기준 크기 근처일 때</span>
-          </div>
-        </div>
-        <div class="criteria-rule">
-          <div class="rule-badge rep">REP</div>
-          <div class="rule-text">
-            <strong>NEAR → FAR → NEAR</strong> 왕복 완료하면 +1<br>
-            <span style="color:var(--text)">→ 다시 돌아온 순간 카운트!</span>
-          </div>
-        </div>
-        <div class="criteria-rule">
-          <div class="rule-badge norep">NO REP</div>
-          <div class="rule-text">
-            FAR까지 충분히 멀리 가지 않음<br>
-            <span style="color:var(--text)">→ 가짜 왕복은 카운트 안 됨</span>
-          </div>
+          <div class="rule-badge rep">REP +2</div>
+          <div class="rule-text">출발선을 떠나 콘을 돌고 <strong>다시 출발선으로 돌아오면 +2</strong></div>
         </div>
       </div>
     </div>
-
     <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-num">01</div>
-        <div class="feature-title">카메라 1대로 OK</div>
-        <div class="feature-desc">기기 1대만 있으면 양쪽 라인 모두 자동으로 감지해요</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">02</div>
-        <div class="feature-title">왕복 자동 카운트</div>
-        <div class="feature-desc">NEAR→FAR→NEAR 왕복할 때마다 +1</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">03</div>
-        <div class="feature-title">비프음 피드백</div>
-        <div class="feature-desc">왕복 완료 순간 삐! 소리로 카운트 확인</div>
-      </div>
+      <div class="feature-card"><div class="feature-num">01</div><div class="feature-title">카메라 1대로 OK</div><div class="feature-desc">출발선에 카메라, 반대편에 콘만 세우면 끝!</div></div>
+      <div class="feature-card"><div class="feature-num">02</div><div class="feature-title">왕복 +2 카운트</div><div class="feature-desc">콘을 돌고 돌아오면 왕복 2회 자동 카운트</div></div>
+      <div class="feature-card"><div class="feature-num">03</div><div class="feature-title">비프음 피드백</div><div class="feature-desc">왕복 완료 순간 삐! 소리로 카운트 확인</div></div>
     </div>
-
     <div class="how-section">
       <div class="how-title">사용 방법</div>
-      <div class="how-step">
-        <div class="how-num">1</div>
-        <div>카메라를 <span style="color:var(--accent)">출발선 한쪽 끝</span>에 고정 (삼각대 or 벽 등)</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">2</div>
-        <div><span style="color:var(--near)">[1단계]</span> 출발선에 서서 '가까이 캡처' 클릭 → NEAR 크기 저장</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">3</div>
-        <div><span style="color:var(--far)">[2단계]</span> 반대편 10m까지 가서 '멀리 캡처' 클릭 → FAR 크기 저장</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">4</div>
-        <div>왕복 시작! <span style="color:var(--accent2)">멀리 갔다가 다시 돌아올 때마다 +1</span></div>
-      </div>
+      <div class="how-step"><div class="how-num">1</div><div>카메라를 <span style="color:var(--accent)">출발선 한쪽 끝</span>에 고정</div></div>
+      <div class="how-step"><div class="how-num">2</div><div>반대편에 <span style="color:var(--far)">콘을 세워서</span> 돌아올 지점 표시</div></div>
+      <div class="how-step"><div class="how-num">3</div><div><span style="color:var(--near)">출발선에 서서</span> '가까이 캡처' 클릭 → 기준 크기 저장</div></div>
+      <div class="how-step"><div class="how-num">4</div><div>왕복 시작! <span style="color:var(--accent2)">콘을 돌고 돌아올 때마다 +2</span></div></div>
     </div>
-
     <button class="btn-start" onclick="goToCamera()">카메라 시작하기 →</button>
   </div>
 </div>
 
-<!-- ══ CAMERA PAGE ══ -->
 <div class="page" id="cameraPage">
   <div class="cam-header">
     <div class="logo" style="font-size:22px">Shuttle Run Rep Checker</div>
     <button class="back-btn" onclick="goToLanding()">← 뒤로</button>
   </div>
-
   <div class="cam-main">
     <div class="camera-section">
       <video id="videoEl" playsinline muted></video>
       <canvas id="canvasEl"></canvas>
-
-      <div class="rep-flash" id="repFlash">
-        <div class="rep-flash-text" id="repFlashText">+1</div>
-      </div>
-
-      <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">카메라 시작 중...</div>
-      </div>
-
-      <!-- Calibration overlay -->
+      <div class="rep-flash" id="repFlash"><div class="rep-flash-text" id="repFlashText">+2</div></div>
+      <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text" id="loadingText">카메라 시작 중...</div></div>
       <div class="cal-overlay hidden" id="calOverlay">
-        <div class="cal-card" id="calCard">
-          <div class="cal-step-badge" id="calStepBadge">1단계</div>
-          <div class="cal-card-title" id="calCardTitle">📏 가까이 있을 때 크기</div>
-          <div class="cal-card-desc" id="calCardDesc">
-            <strong>출발선에 서있는 상태</strong>에서 카메라를 마주보고<br>
-            아래 <strong style="color:var(--accent)">'가까이 캡처'</strong> 버튼을 눌러주세요
-          </div>
+        <div class="cal-card">
+          <div class="cal-step-badge">캘리브레이션</div>
+          <div class="cal-card-title">📏 출발선에서 크기 측정</div>
+          <div class="cal-card-desc"><strong>출발선에 서있는 상태</strong>에서 카메라를 마주보고<br>아래 <strong style="color:var(--accent)">'가까이 캡처'</strong> 버튼을 눌러주세요</div>
         </div>
         <div class="cal-size-panel">
-          <div class="cal-size-group">
-            <div class="cal-size-label">현재 크기</div>
-            <div class="cal-size-value bad" id="calCurrentValue">—</div>
-          </div>
-          <div class="cal-size-group">
-            <div class="cal-size-label">NEAR</div>
-            <div class="cal-size-value" id="calNearValue" style="color:var(--muted)">—</div>
-          </div>
-          <div class="cal-size-group">
-            <div class="cal-size-label">FAR</div>
-            <div class="cal-size-value" id="calFarValue" style="color:var(--muted)">—</div>
-          </div>
+          <div class="cal-size-group"><div class="cal-size-label">현재 크기</div><div class="cal-size-value bad" id="calCurrentValue">—</div></div>
+          <div class="cal-size-group"><div class="cal-size-label">NEAR 기준</div><div class="cal-size-value" id="calNearValue" style="color:var(--muted)">—</div></div>
         </div>
         <div class="cal-actions">
-          <button class="cal-btn secondary" onclick="backFromCal()">뒤로</button>
+          <button class="cal-btn secondary" onclick="goToLanding()">뒤로</button>
           <button class="cal-btn primary" id="calCaptureBtn" onclick="captureCalibration()" disabled>가까이 캡처</button>
         </div>
       </div>
-
       <div class="overlay-status" id="statusLabel">준비 중...</div>
       <div class="side-indicator" id="sideLabel">—</div>
-
       <div class="feedback-bar" id="feedbackBar" style="display:none">
         <div class="feedback-text" id="feedbackText" style="color:var(--muted)">TRACKING</div>
-        <div class="detail-display">
-          위치 <span id="sizePct">0%</span><br>
-          상태 <span id="phaseLabel">NEAR</span>
-        </div>
+        <div class="detail-display">위치 <span id="sizePct">0%</span><br>상태 <span id="phaseLabel">NEAR</span></div>
       </div>
-
       <div class="pos-bar-wrap" id="posBarWrap" style="display:none">
-        <div class="pos-bar-track">
-          <div class="pos-bar-zone-far"></div>
-          <div class="pos-bar-zone-near"></div>
-          <div class="pos-bar-dot" id="posBarDot" style="left:50%"></div>
-        </div>
+        <div class="pos-bar-track"><div class="pos-bar-zone-near"></div><div class="pos-bar-dot" id="posBarDot" style="left:100%"></div></div>
       </div>
     </div>
-
     <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">왕복 횟수</div>
-        <div class="stat-value" id="countValue">0</div>
-        <div class="stat-sub">NEAR → FAR → NEAR</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">NEAR 크기</div>
-        <div class="stat-value" id="nearValue" style="font-size:32px;color:var(--near)">—</div>
-        <div class="stat-sub">가까이 있을 때</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">FAR 크기</div>
-        <div class="stat-value" id="farValue" style="font-size:32px;color:var(--far)">—</div>
-        <div class="stat-sub">멀리 있을 때</div>
-      </div>
+      <div class="stat-card"><div class="stat-label">왕복 횟수</div><div class="stat-value" id="countValue">0</div><div class="stat-sub">돌아올 때마다 +2</div></div>
+      <div class="stat-card"><div class="stat-label">NEAR 기준</div><div class="stat-value" id="nearValue" style="font-size:32px;color:var(--near)">—</div><div class="stat-sub">출발선 크기</div></div>
     </div>
-
     <div class="btn-row">
       <button class="btn" onclick="resetCount()">횟수 초기화</button>
       <button class="btn" onclick="recalibrate()">📏 재측정</button>
@@ -600,446 +195,94 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
-
 <script>
-// ═══ DOM ═══
-const videoEl       = document.getElementById('videoEl');
-const canvasEl      = document.getElementById('canvasEl');
-const ctx           = canvasEl.getContext('2d');
+const videoEl=document.getElementById('videoEl'),canvasEl=document.getElementById('canvasEl'),ctx=canvasEl.getContext('2d');
+const loadingEl=document.getElementById('loadingOverlay'),loadingTextEl=document.getElementById('loadingText');
+const calOverlay=document.getElementById('calOverlay'),calCurrentValue=document.getElementById('calCurrentValue');
+const calNearValue=document.getElementById('calNearValue'),calCaptureBtn=document.getElementById('calCaptureBtn');
+const statusEl=document.getElementById('statusLabel'),sideEl=document.getElementById('sideLabel');
+const feedbackBar=document.getElementById('feedbackBar'),feedbackEl=document.getElementById('feedbackText');
+const sizePctEl=document.getElementById('sizePct'),phaseLabelEl=document.getElementById('phaseLabel');
+const posBarWrap=document.getElementById('posBarWrap'),posBarDot=document.getElementById('posBarDot');
+const countValueEl=document.getElementById('countValue'),nearValueEl=document.getElementById('nearValue');
+const repFlashEl=document.getElementById('repFlash'),repFlashText=document.getElementById('repFlashText');
 
-const loadingEl     = document.getElementById('loadingOverlay');
-const loadingTextEl = document.getElementById('loadingText');
-const calOverlay    = document.getElementById('calOverlay');
-const calStepBadge  = document.getElementById('calStepBadge');
-const calCardTitle  = document.getElementById('calCardTitle');
-const calCardDesc   = document.getElementById('calCardDesc');
-const calCurrentValue = document.getElementById('calCurrentValue');
-const calNearValue  = document.getElementById('calNearValue');
-const calFarValue   = document.getElementById('calFarValue');
-const calCaptureBtn = document.getElementById('calCaptureBtn');
+const NEAR_ENTER=0.85,NEAR_EXIT=0.70,MIN_VIS=0.4;
 
-const statusEl      = document.getElementById('statusLabel');
-const sideEl        = document.getElementById('sideLabel');
-const feedbackBar   = document.getElementById('feedbackBar');
-const feedbackEl    = document.getElementById('feedbackText');
-const sizePctEl     = document.getElementById('sizePct');
-const phaseLabelEl  = document.getElementById('phaseLabel');
-const posBarWrap    = document.getElementById('posBarWrap');
-const posBarDot     = document.getElementById('posBarDot');
+const S={screen:'loading',nearSize:0,currentSize:0,count:0,phase:'NEAR',camStarted:false,flashT:null};
 
-const countValueEl  = document.getElementById('countValue');
-const nearValueEl   = document.getElementById('nearValue');
-const farValueEl    = document.getElementById('farValue');
+function goToCamera(){document.getElementById('landingPage').classList.remove('active');document.getElementById('cameraPage').classList.add('active');if(!S.camStarted)startCamera();}
+function goToLanding(){document.getElementById('cameraPage').classList.remove('active');document.getElementById('landingPage').classList.add('active');}
+function setScreen(s){S.screen=s;loadingEl.classList.toggle('hidden',s!=='loading');calOverlay.classList.toggle('hidden',s!=='calibrate');feedbackBar.style.display=s==='counting'?'flex':'none';posBarWrap.style.display=s==='counting'?'block':'none';}
 
-const repFlashEl    = document.getElementById('repFlash');
-const repFlashText  = document.getElementById('repFlashText');
+function bodySize(lm){if(!lm)return 0;const ls=lm[11],rs=lm[12],lh=lm[23],rh=lm[24];if(!ls||!rs||!lh||!rh)return 0;if(Math.min(ls.visibility,rs.visibility,lh.visibility,rh.visibility)<MIN_VIS)return 0;const t=Math.abs((lh.y+rh.y)/2-(ls.y+rs.y)/2),w=Math.hypot(ls.x-rs.x,ls.y-rs.y);return Math.max(t,w);}
 
-// ═══ 튜닝 ═══
-const NEAR_ENTER_RATIO = 0.85;   // NEAR 기준의 85% 이상일 때 NEAR 도달
-const NEAR_EXIT_RATIO  = 0.75;   // 이보다 작으면 NEAR에서 벗어남
-const FAR_ENTER_RATIO  = 1.30;   // FAR 기준의 130% 이하일 때 FAR 도달
-const FAR_EXIT_RATIO   = 1.60;   // 이보다 크면 FAR에서 벗어남
-const MIN_VISIBILITY   = 0.4;
+let audioCtx=null;
+function ensureAudio(){try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
+function beep(f,d,v){try{ensureAudio();if(!audioCtx)return;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(audioCtx.destination);const t=audioCtx.currentTime;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.start(t);o.stop(t+d);}catch(e){}}
+const beepRep=()=>{beep(1050,0.10,0.35);setTimeout(()=>beep(1400,0.12,0.35),100);};
+function beepCap(){beep(660,0.09,0.28);setTimeout(()=>beep(990,0.11,0.28),100);}
 
-// ═══ 상태 ═══
-const state = {
-  screen: 'loading',   // 'loading' | 'calibrate' | 'counting'
-  calStep: 1,          // 1 = NEAR 캡처, 2 = FAR 캡처
-  nearSize: 0,
-  farSize: 0,
-  currentSize: 0,
-  count: 0,
-  phase: 'NEAR',       // 'NEAR' | 'MOVING_TO_FAR' | 'FAR' | 'MOVING_TO_NEAR'
-  cameraStarted: false,
-  flashTimeout: null,
-};
+function resetCount(){S.count=0;S.phase='NEAR';countValueEl.textContent='0';}
+function showFlash(){if(S.flashT)clearTimeout(S.flashT);repFlashEl.style.background='rgba(255,196,214,0.35)';repFlashText.textContent='+2';repFlashText.style.color='#ffc4d6';repFlashEl.classList.add('show');S.flashT=setTimeout(()=>repFlashEl.classList.remove('show'),600);}
+function flashStat(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
 
-// ═══ 화면 전환 ═══
-function goToCamera() {
-  document.getElementById('landingPage').classList.remove('active');
-  document.getElementById('cameraPage').classList.add('active');
-  if (!state.cameraStarted) startCamera();
-}
-function goToLanding() {
-  document.getElementById('cameraPage').classList.remove('active');
-  document.getElementById('landingPage').classList.add('active');
-}
+function captureCalibration(){if(S.currentSize<=0.02)return;S.nearSize=S.currentSize;calNearValue.textContent=(S.nearSize*100).toFixed(1);nearValueEl.textContent=(S.nearSize*100).toFixed(0);beepCap();S.count=0;S.phase='NEAR';countValueEl.textContent='0';setScreen('counting');}
+function recalibrate(){S.nearSize=0;calNearValue.textContent='—';nearValueEl.textContent='—';setScreen('calibrate');}
 
-function setScreen(s) {
-  state.screen = s;
-  loadingEl.classList.toggle('hidden', s !== 'loading');
-  calOverlay.classList.toggle('hidden', s !== 'calibrate');
-  feedbackBar.style.display  = (s === 'counting') ? 'flex' : 'none';
-  posBarWrap.style.display   = (s === 'counting') ? 'block' : 'none';
-}
+const pose=new Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+pose.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:false,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
 
-// ═══ 몸 크기 계산 ═══
-function computeBodySize(lm) {
-  if (!lm) return 0;
-  const ls = lm[11], rs = lm[12], lh = lm[23], rh = lm[24];
-  if (!ls || !rs || !lh || !rh) return 0;
-  const minVis = Math.min(ls.visibility, rs.visibility, lh.visibility, rh.visibility);
-  if (minVis < MIN_VISIBILITY) return 0;
-  const shY = (ls.y + rs.y) / 2;
-  const hpY = (lh.y + rh.y) / 2;
-  const torso = Math.abs(hpY - shY);
-  const shoulderW = Math.hypot(ls.x - rs.x, ls.y - rs.y);
-  return Math.max(torso, shoulderW);
-}
+pose.onResults(r=>{
+  canvasEl.width=videoEl.videoWidth||640;canvasEl.height=videoEl.videoHeight||480;
+  ctx.clearRect(0,0,canvasEl.width,canvasEl.height);
+  if(r.image)ctx.drawImage(r.image,0,0,canvasEl.width,canvasEl.height);
+  const lm=r.poseLandmarks;
+  if(lm){drawConnectors(ctx,lm,POSE_CONNECTIONS,{color:'#7a5568',lineWidth:1.5});drawLandmarks(ctx,lm,{color:'#ffc4d6',lineWidth:1,radius:3});}
+  const size=bodySize(lm);S.currentSize=size;
 
-// ═══ 비프음 ═══
-let audioCtx = null;
-function ensureAudio() {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  } catch(e) {}
-}
-function beep(freq, dur, vol) {
-  try {
-    ensureAudio();
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = freq;
-    gain.gain.value = vol;
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    const t0 = audioCtx.currentTime;
-    gain.gain.setValueAtTime(vol, t0);
-    gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
-    osc.start(t0); osc.stop(t0 + dur);
-  } catch(e) {}
-}
-const beepRep = () => {
-  beep(1050, 0.10, 0.35);
-  setTimeout(() => beep(1400, 0.12, 0.35), 100);
-};
-function beepCapture() {
-  beep(660, 0.09, 0.28);
-  setTimeout(() => beep(990, 0.11, 0.28), 100);
-}
-
-// ═══ 카운트 관리 ═══
-function resetCount() {
-  state.count = 0;
-  // ★ 중요: 시작 상태는 NEAR로 설정 (출발선에 서있으므로)
-  //   이렇게 하면 처음 서있을 때 카운트되지 않음!
-  state.phase = 'NEAR';
-  countValueEl.textContent = '0';
-}
-
-// ═══ Flash ═══
-function showFlash(type) {
-  if (state.flashTimeout) clearTimeout(state.flashTimeout);
-  if (type === 'rep') {
-    repFlashEl.style.background = 'rgba(255,196,214,0.35)';
-    repFlashText.textContent = '왕복 +1';
-    repFlashText.style.color = '#ffc4d6';
-  } else {
-    repFlashEl.style.background = 'rgba(239,68,68,0.22)';
-    repFlashText.textContent = 'NO REP';
-    repFlashText.style.color = '#ef4444';
-  }
-  repFlashEl.classList.add('show');
-  state.flashTimeout = setTimeout(() => repFlashEl.classList.remove('show'), 600);
-}
-function flashStat(el) {
-  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
-}
-
-// ═══ 캘리브레이션 단계 업데이트 ═══
-function updateCalibrationUI() {
-  if (state.calStep === 1) {
-    calStepBadge.textContent = '1단계 · NEAR';
-    calStepBadge.classList.remove('step2');
-    calCardTitle.textContent = '📏 가까이 있을 때 크기';
-    calCardTitle.classList.remove('step2');
-    calCardDesc.innerHTML = '<strong>출발선에 서있는 상태</strong>에서 카메라를 마주보고<br>아래 <strong style="color:var(--accent)">\'가까이 캡처\'</strong> 버튼을 눌러주세요';
-    calCaptureBtn.textContent = '가까이 캡처 (1/2)';
-    calCaptureBtn.classList.remove('step2');
-  } else {
-    calStepBadge.textContent = '2단계 · FAR';
-    calStepBadge.classList.add('step2');
-    calCardTitle.textContent = '🏃 멀리 있을 때 크기';
-    calCardTitle.classList.add('step2');
-    calCardDesc.innerHTML = '<strong>반대편 10m 지점</strong>까지 달려가서<br>멈춘 다음 <strong style="color:var(--far)">\'멀리 캡처\'</strong> 버튼을 눌러주세요';
-    calCaptureBtn.textContent = '멀리 캡처 (2/2)';
-    calCaptureBtn.classList.add('step2');
-  }
-}
-
-// ═══ 캘리브레이션 ═══
-function captureCalibration() {
-  if (state.currentSize <= 0.02) return;
-
-  if (state.calStep === 1) {
-    // NEAR 저장
-    state.nearSize = state.currentSize;
-    calNearValue.textContent = (state.nearSize * 100).toFixed(1);
-    calNearValue.classList.add('done');
-    nearValueEl.textContent = (state.nearSize * 100).toFixed(0);
-    beepCapture();
-    // 2단계로
-    state.calStep = 2;
-    updateCalibrationUI();
-  } else {
-    // FAR 저장
-    state.farSize = state.currentSize;
-
-    // 유효성 검사: FAR는 NEAR보다 작아야 함
-    if (state.farSize >= state.nearSize * 0.9) {
-      alert('FAR 크기가 NEAR와 너무 비슷해요!\n더 멀리 가서 다시 시도해주세요.');
-      return;
-    }
-
-    calFarValue.textContent = (state.farSize * 100).toFixed(1);
-    calFarValue.classList.add('far');
-    farValueEl.textContent = (state.farSize * 100).toFixed(0);
-    beepCapture();
-
-    // 카운트 시작!
-    state.count = 0;
-    // ★ 핵심: 시작 phase = 'NEAR' (지금 가까이 있음)
-    //   멀어졌다가 돌아와야 첫 카운트 됨
-    state.phase = 'NEAR';
-    countValueEl.textContent = '0';
-    setScreen('counting');
-  }
-}
-
-function recalibrate() {
-  state.calStep = 1;
-  state.nearSize = 0;
-  state.farSize = 0;
-  calNearValue.textContent = '—';
-  calNearValue.classList.remove('done');
-  calFarValue.textContent = '—';
-  calFarValue.classList.remove('far');
-  nearValueEl.textContent = '—';
-  farValueEl.textContent = '—';
-  updateCalibrationUI();
-  setScreen('calibrate');
-}
-
-function backFromCal() {
-  if (state.calStep === 2) {
-    // 1단계로 돌아가기
-    state.calStep = 1;
-    state.nearSize = 0;
-    calNearValue.textContent = '—';
-    calNearValue.classList.remove('done');
-    updateCalibrationUI();
-  } else {
-    goToLanding();
-  }
-}
-
-// ═══ MediaPipe Pose ═══
-const pose = new Pose({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
-pose.setOptions({
-  modelComplexity: 1,
-  smoothLandmarks: true,
-  enableSegmentation: false,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5,
+  if(S.screen==='calibrate'){
+    if(size>0.02){calCurrentValue.textContent=(size*100).toFixed(1);calCurrentValue.classList.remove('bad');calCaptureBtn.disabled=false;}
+    else{calCurrentValue.textContent=lm?'…':'사람 없음';calCurrentValue.classList.add('bad');calCaptureBtn.disabled=true;}
+    statusEl.textContent='출발선에서 크기 측정';statusEl.className='overlay-status near';
+    sideEl.textContent='NEAR 측정';sideEl.className='side-indicator near';
+  } else if(S.screen==='counting'){handleCounting(size,lm);}
 });
 
-pose.onResults((results) => {
-  canvasEl.width  = videoEl.videoWidth  || 640;
-  canvasEl.height = videoEl.videoHeight || 480;
-  ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-  if (results.image) {
-    ctx.drawImage(results.image, 0, 0, canvasEl.width, canvasEl.height);
+function handleCounting(size,lm){
+  let pct=50;if(S.nearSize>0){pct=(size/S.nearSize)*100;pct=Math.max(0,Math.min(100,pct));}
+  sizePctEl.textContent=pct.toFixed(0)+'%';posBarDot.style.left=pct+'%';phaseLabelEl.textContent=S.phase;
+  if(pct>=75)posBarDot.style.background='var(--near)';else if(pct<=40)posBarDot.style.background='var(--far)';else posBarDot.style.background='var(--accent)';
+
+  if(!lm||size<=0.02){statusEl.textContent='사람을 찾는 중...';statusEl.className='overlay-status';sideEl.textContent='—';sideEl.className='side-indicator';feedbackEl.textContent='SEARCHING';feedbackEl.style.color='var(--muted)';return;}
+
+  const nearEnter=S.nearSize*NEAR_ENTER,nearExit=S.nearSize*NEAR_EXIT;
+
+  // 단순 2단계: NEAR ↔ AWAY
+  if(S.phase==='NEAR'){
+    if(size<nearExit)S.phase='AWAY';
+  } else if(S.phase==='AWAY'){
+    if(size>=nearEnter){S.phase='NEAR';S.count+=2;countValueEl.textContent=S.count;flashStat(countValueEl);showFlash();beepRep();}
   }
 
-  const lm = results.poseLandmarks;
-
-  if (lm) {
-    drawConnectors(ctx, lm, POSE_CONNECTIONS, { color: '#7a5568', lineWidth: 1.5 });
-    drawLandmarks(ctx, lm, { color: '#ffc4d6', lineWidth: 1, radius: 3 });
+  let st,sc,ft,fc,sit,sic;
+  switch(S.phase){
+    case'NEAR':st='출발선 ✓ — 반대편 콘으로!';sc='near';ft='AT START';fc='var(--near)';sit='◀ NEAR';sic='near';break;
+    case'AWAY':st='달리는 중... 콘 돌고 돌아오세요!';sc='';ft='RUNNING';fc='var(--warn)';sit='→ 달리는 중';sic='';break;
   }
-
-  const size = computeBodySize(lm);
-  state.currentSize = size;
-
-  if (state.screen === 'calibrate') {
-    // Update current size display
-    if (size > 0.02) {
-      calCurrentValue.textContent = (size * 100).toFixed(1);
-      calCurrentValue.classList.remove('bad');
-      calCaptureBtn.disabled = false;
-    } else {
-      calCurrentValue.textContent = lm ? '…' : '사람 없음';
-      calCurrentValue.classList.add('bad');
-      calCaptureBtn.disabled = true;
-    }
-
-    const stepText = state.calStep === 1 ? '1단계: NEAR 측정' : '2단계: FAR 측정';
-    statusEl.textContent = stepText;
-    statusEl.className = 'overlay-status ' + (state.calStep === 1 ? 'near' : 'far');
-    sideEl.textContent = stepText;
-    sideEl.className = 'side-indicator ' + (state.calStep === 1 ? 'near' : 'far');
-
-  } else if (state.screen === 'counting') {
-    handleCounting(size, lm);
-  }
-});
-
-function handleCounting(size, lm) {
-  // Position on the bar (based on NEAR-FAR range)
-  // FAR = 0%, NEAR = 100%
-  let pct = 50;
-  if (state.nearSize > state.farSize) {
-    pct = ((size - state.farSize) / (state.nearSize - state.farSize)) * 100;
-    pct = Math.max(0, Math.min(100, pct));
-  }
-  sizePctEl.textContent = pct.toFixed(0) + '%';
-  posBarDot.style.left = pct + '%';
-  phaseLabelEl.textContent = state.phase;
-
-  // Dot color
-  if (pct >= 75) posBarDot.style.background = 'var(--near)';
-  else if (pct <= 30) posBarDot.style.background = 'var(--far)';
-  else posBarDot.style.background = 'var(--accent)';
-
-  if (!lm || size <= 0.02) {
-    statusEl.textContent = '사람을 찾는 중...';
-    statusEl.className = 'overlay-status';
-    sideEl.textContent = '—';
-    sideEl.className = 'side-indicator';
-    feedbackEl.textContent = 'SEARCHING';
-    feedbackEl.style.color = 'var(--muted)';
-    return;
-  }
-
-  // ═══ State machine ═══
-  const nearEnterSize = state.nearSize * NEAR_ENTER_RATIO;
-  const nearExitSize  = state.nearSize * NEAR_EXIT_RATIO;
-  const farEnterSize  = state.farSize * FAR_ENTER_RATIO;
-  const farExitSize   = state.farSize * FAR_EXIT_RATIO;
-
-  if (state.phase === 'NEAR') {
-    // 가까이 있었음 → 멀어지기 시작?
-    if (size < nearExitSize) {
-      state.phase = 'MOVING_TO_FAR';
-    }
-  } else if (state.phase === 'MOVING_TO_FAR') {
-    // FAR에 도달?
-    if (size <= farEnterSize) {
-      state.phase = 'FAR';
-    }
-    // 다시 돌아간다면?
-    else if (size >= nearEnterSize) {
-      state.phase = 'NEAR';
-    }
-  } else if (state.phase === 'FAR') {
-    // 멀리 있음 → 돌아오기 시작?
-    if (size > farExitSize) {
-      state.phase = 'MOVING_TO_NEAR';
-    }
-  } else if (state.phase === 'MOVING_TO_NEAR') {
-    // NEAR 도달 → 왕복 완료!
-    if (size >= nearEnterSize) {
-      state.phase = 'NEAR';
-      state.count++;
-      countValueEl.textContent = state.count;
-      flashStat(countValueEl);
-      showFlash('rep');
-      beepRep();
-    }
-    // 다시 멀어진다면?
-    else if (size <= farEnterSize) {
-      state.phase = 'FAR';
-    }
-  }
-
-  // ═══ UI update ═══
-  let statusText, statusCls, feedbackText, feedbackCls, sideText, sideCls;
-  switch (state.phase) {
-    case 'NEAR':
-      statusText = '출발선 ✓ — 반대편으로 달려가세요!';
-      statusCls = 'near';
-      feedbackText = 'AT START';
-      feedbackCls = 'var(--near)';
-      sideText = '◀ NEAR';
-      sideCls = 'near';
-      break;
-    case 'MOVING_TO_FAR':
-      statusText = '가는 중... 더 멀리!';
-      statusCls = '';
-      feedbackText = 'GOING →';
-      feedbackCls = 'var(--warn)';
-      sideText = '→ 달리는 중';
-      sideCls = '';
-      break;
-    case 'FAR':
-      statusText = '반대편 도착 ✓ — 돌아오세요!';
-      statusCls = 'far';
-      feedbackText = 'AT END';
-      feedbackCls = 'var(--far)';
-      sideText = 'FAR ▶';
-      sideCls = 'far';
-      break;
-    case 'MOVING_TO_NEAR':
-      statusText = '돌아오는 중... 출발선까지!';
-      statusCls = '';
-      feedbackText = '← RETURNING';
-      feedbackCls = 'var(--warn)';
-      sideText = '← 돌아오는 중';
-      sideCls = '';
-      break;
-  }
-
-  statusEl.textContent = statusText;
-  statusEl.className = 'overlay-status ' + statusCls;
-  feedbackEl.textContent = feedbackText;
-  feedbackEl.style.color = feedbackCls;
-  sideEl.textContent = sideText;
-  sideEl.className = 'side-indicator ' + sideCls;
+  statusEl.textContent=st;statusEl.className='overlay-status '+sc;feedbackEl.textContent=ft;feedbackEl.style.color=fc;sideEl.textContent=sit;sideEl.className='side-indicator '+sic;
 }
 
-// ═══ 카메라 시작 ═══
-async function startCamera() {
-  state.cameraStarted = true;
-  loadingTextEl.textContent = '카메라 시작 중...';
-  setScreen('loading');
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user' }
-    }).catch(() => navigator.mediaDevices.getUserMedia({ video: true }));
-    videoEl.srcObject = stream;
-    await videoEl.play();
-
-    loadingTextEl.textContent = 'AI 모델 로딩 중...';
-
-    const camera = new Camera(videoEl, {
-      onFrame: async () => {
-        try { await pose.send({ image: videoEl }); } catch(e) {}
-      },
-      width: 640, height: 480
-    });
-    camera.start();
-
-    setTimeout(() => {
-      state.calStep = 1;
-      updateCalibrationUI();
-      setScreen('calibrate');
-    }, 800);
-
-  } catch (e) {
-    console.error(e);
-    loadingEl.innerHTML = '<div style="color:#ef4444;font-size:15px;text-align:center;padding:20px;font-family:Do Hyeon,sans-serif">카메라 권한이 필요해요<br><small style="color:#d4a8bb;font-size:13px">브라우저 설정에서 카메라를 허용해주세요</small></div>';
-    state.cameraStarted = false;
-  }
+async function startCamera(){
+  S.camStarted=true;loadingTextEl.textContent='카메라 시작 중...';setScreen('loading');
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}).catch(()=>navigator.mediaDevices.getUserMedia({video:true}));
+    videoEl.srcObject=stream;await videoEl.play();loadingTextEl.textContent='AI 모델 로딩 중...';
+    const camera=new Camera(videoEl,{onFrame:async()=>{try{await pose.send({image:videoEl});}catch(e){}},width:640,height:480});
+    camera.start();setTimeout(()=>setScreen('calibrate'),800);
+  }catch(e){loadingEl.innerHTML='<div style="color:#ef4444;font-size:15px;text-align:center;padding:20px;font-family:Do Hyeon,sans-serif">카메라 권한이 필요해요<br><small style="color:#d4a8bb;font-size:13px">브라우저 설정에서 카메라를 허용해주세요</small></div>';S.camStarted=false;}
 }
-
-// 화면 꺼짐 방지
-(async () => {
-  try {
-    if ('wakeLock' in navigator) await navigator.wakeLock.request('screen');
-  } catch(e) {}
-})();
+(async()=>{try{if('wakeLock' in navigator)await navigator.wakeLock.request('screen');}catch(e){}})();
 </script>
 </body>
 </html>
